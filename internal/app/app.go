@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pancakesgit/pancakesgit/internal/config"
-	"github.com/pancakesgit/pancakesgit/internal/database"
-	"github.com/pancakesgit/pancakesgit/internal/encryption"
-	"github.com/pancakesgit/pancakesgit/internal/git"
-	"github.com/pancakesgit/pancakesgit/internal/handlers"
-	"github.com/pancakesgit/pancakesgit/internal/middleware"
-	"github.com/pancakesgit/pancakesgit/internal/models"
-	"github.com/pancakesgit/pancakesgit/internal/services"
-	"github.com/pancakesgit/pancakesgit/internal/storage"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/config"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/database"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/encryption"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/git"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/handlers"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/middleware"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/models"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/services"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/storage"
 )
 
 // App represents the main application

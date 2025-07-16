@@ -47,7 +47,7 @@ A privacy-focused, encrypted Git service that prioritizes user privacy and data 
 
 1. **Clone or download the setup script:**
    ```bash
-   curl -O https://raw.githubusercontent.com/pancakesgit/pancakesgit/main/setup.sh
+   curl -O https://raw.githubusercontent.com/ilikepancakes-ink/pancakesgit/main/setup.sh
    chmod +x setup.sh
    ```
 
@@ -224,7 +224,7 @@ We welcome contributions! Please:
 
 ```bash
 # Clone repository
-git clone https://github.com/pancakesgit/pancakesgit.git
+git clone https://github.com/ilikepancakes-ink/pancakesgit.git
 cd pancakesgit
 
 # Install dependencies

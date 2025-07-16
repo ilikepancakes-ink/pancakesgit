@@ -1,4 +1,4 @@
-module github.com/pancakesgit/pancakesgit
+module github.com/ilikepancakes-ink/pancakesgit
 
 go 1.21
 

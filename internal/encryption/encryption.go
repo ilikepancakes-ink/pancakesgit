@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/pancakesgit/pancakesgit/internal/config"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/config"
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/crypto/scrypt"
 )

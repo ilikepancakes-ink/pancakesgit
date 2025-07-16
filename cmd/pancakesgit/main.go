@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/pancakesgit/pancakesgit/internal/app"
-	"github.com/pancakesgit/pancakesgit/internal/config"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/app"
+	"github.com/ilikepancakes-ink/pancakesgit/internal/config"
 	"github.com/spf13/cobra"
 )
 
