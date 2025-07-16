@@ -5,11 +5,14 @@ import (
 	"log"
 	"time"
 
+	"pancakesgit/internal/config"
+
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"pancakesgit/internal/config"
+
+	// Use pure Go SQLite driver
+	"github.com/glebarez/sqlite"
 )
 
 // Service provides database functionality
@@ -33,6 +36,7 @@ func New(cfg config.DatabaseConfig) (*Service, error) {
 			cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Name, cfg.SSLMode)
 		db, err = gorm.Open(postgres.Open(dsn), gormConfig)
 	case "sqlite":
+		// Use pure Go SQLite driver
 		db, err = gorm.Open(sqlite.Open(cfg.Path), gormConfig)
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", cfg.Type)

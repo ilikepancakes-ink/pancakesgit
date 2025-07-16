@@ -7,8 +7,11 @@ import (
 
 	"pancakesgit/internal/app"
 	"pancakesgit/internal/config"
+	"pancakesgit/internal/database"
+	"pancakesgit/internal/models"
 
 	"github.com/spf13/cobra"
+	"gorm.io/gorm"
 )
 
 var (
@@ -86,16 +89,45 @@ func runMigrations(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	application, err := app.New(cfg)
+	// Initialize only database for migrations (not full app)
+	db, err := database.New(cfg.Database)
 	if err != nil {
-		log.Fatalf("Failed to initialize application: %v", err)
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
 	log.Println("Running database migrations...")
-	if err := application.Migrate(); err != nil {
+	if err := runDatabaseMigrations(db.DB); err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}
 	log.Println("Migrations completed successfully")
+}
+
+// runDatabaseMigrations runs all database migrations
+func runDatabaseMigrations(db *gorm.DB) error {
+	return db.AutoMigrate(
+		&models.User{},
+		&models.Repository{},
+		&models.Issue{},
+		&models.PullRequest{},
+		&models.Comment{},
+		&models.Label{},
+		&models.Milestone{},
+		&models.Release{},
+		&models.Webhook{},
+		&models.SSHKey{},
+		&models.AccessToken{},
+		&models.Star{},
+		&models.Watch{},
+		&models.Fork{},
+		&models.Collaboration{},
+		&models.Organization{},
+		&models.Team{},
+		&models.TeamMember{},
+		&models.OrganizationMember{},
+		&models.AuditLog{},
+		&models.Badge{},
+		&models.UserBadge{},
+	)
 }
 
 func createUser(cmd *cobra.Command, args []string) {
