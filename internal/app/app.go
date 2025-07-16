@@ -95,7 +95,7 @@ func (a *App) setupRoutes() {
 
 	// Static files
 	a.router.Static("/static", "./static")
-	a.router.LoadHTMLGlob("templates/*")
+	a.router.LoadHTMLGlob("templates/**/*.html")
 
 	// Public routes
 	public := a.router.Group("/")
