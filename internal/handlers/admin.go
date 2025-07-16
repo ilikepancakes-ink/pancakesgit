@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ilikepancakes-ink/pancakesgit/internal/models"
-	"github.com/ilikepancakes-ink/pancakesgit/internal/services"
+	"pancakesgit/internal/models"
+	"pancakesgit/internal/services"
 )
 
 // AdminHandler handles admin-related requests
