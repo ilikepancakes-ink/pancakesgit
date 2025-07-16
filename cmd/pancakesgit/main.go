@@ -7,6 +7,7 @@ import (
 
 	"pancakesgit/internal/app"
 	"pancakesgit/internal/config"
+
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ user privacy and data security while providing a familiar Git hosting experience
 	var migrateCmd = &cobra.Command{
 		Use:   "migrate",
 		Short: "Run database migrations",
-		Run: runMigrations,
+		Run:   runMigrations,
 	}
 
 	var createUserCmd = &cobra.Command{
@@ -52,7 +53,7 @@ user privacy and data security while providing a familiar Git hosting experience
 	// Add flags
 	rootCmd.PersistentFlags().StringP("config", "c", "", "config file path")
 	rootCmd.PersistentFlags().StringP("port", "p", "3000", "server port")
-	rootCmd.PersistentFlags().StringP("host", "h", "0.0.0.0", "server host")
+	rootCmd.PersistentFlags().String("host", "0.0.0.0", "server host")
 	rootCmd.PersistentFlags().Bool("debug", false, "enable debug mode")
 
 	if err := rootCmd.Execute(); err != nil {
