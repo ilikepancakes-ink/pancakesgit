@@ -5,9 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"pancakesgit/internal/models"
 	"pancakesgit/internal/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 // AdminHandler handles admin-related requests
@@ -31,7 +32,7 @@ func NewAdminHandler(userService *services.UserService, repoService *services.Re
 // Dashboard renders the admin dashboard
 func (h *AdminHandler) Dashboard(c *gin.Context) {
 	user := GetCurrentUser(c)
-	
+
 	// Get dashboard statistics
 	stats := h.getDashboardStats()
 	recentActivity := h.getRecentActivity()
@@ -42,7 +43,7 @@ func (h *AdminHandler) Dashboard(c *gin.Context) {
 	badgeStats := h.getBadgeStats()
 	recentBadges := h.getRecentBadges()
 	systemAlerts := h.getSystemAlerts()
-	
+
 	data := gin.H{
 		"Title":           "Admin Dashboard",
 		"User":            user,
@@ -56,14 +57,14 @@ func (h *AdminHandler) Dashboard(c *gin.Context) {
 		"RecentBadges":    recentBadges,
 		"SystemAlerts":    systemAlerts,
 	}
-	
+
 	c.HTML(http.StatusOK, "admin/dashboard.html", data)
 }
 
 // UserManagement renders the user management page
 func (h *AdminHandler) UserManagement(c *gin.Context) {
 	user := GetCurrentUser(c)
-	
+
 	// Get query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
@@ -71,21 +72,21 @@ func (h *AdminHandler) UserManagement(c *gin.Context) {
 	status := c.Query("status")
 	search := c.Query("search")
 	sortBy := c.DefaultQuery("sort", "created_desc")
-	
+
 	// Calculate offset
 	offset := (page - 1) * limit
-	
+
 	// Get users with filtering
 	users, total := h.getUsersWithFilters(search, role, status, sortBy, limit, offset)
-	
+
 	// Get available badges for awarding
 	availableBadges := h.getAvailableBadges()
-	
+
 	// Calculate pagination
 	totalPages := (int(total) + limit - 1) / limit
 	hasNextPage := page < totalPages
 	hasPrevPage := page > 1
-	
+
 	data := gin.H{
 		"Title":           "User Management",
 		"User":            user,
@@ -101,23 +102,23 @@ func (h *AdminHandler) UserManagement(c *gin.Context) {
 		"PageEnd":         min(offset+limit, int(total)),
 		"AvailableBadges": availableBadges,
 	}
-	
+
 	c.HTML(http.StatusOK, "admin/users.html", data)
 }
 
 // BadgeManagement renders the badge management page
 func (h *AdminHandler) BadgeManagement(c *gin.Context) {
 	user := GetCurrentUser(c)
-	
+
 	// Get badges
 	badges, _, _ := h.badgeService.GetBadges("", nil, 100, 0)
-	
+
 	// Get badge statistics
 	badgeStats, _ := h.badgeService.GetBadgeStats()
-	
+
 	// Get recent badges
 	recentBadges, _, _ := h.badgeService.GetBadges("", nil, 5, 0)
-	
+
 	data := gin.H{
 		"Title":        "Badge Management",
 		"User":         user,
@@ -125,7 +126,7 @@ func (h *AdminHandler) BadgeManagement(c *gin.Context) {
 		"Stats":        badgeStats,
 		"RecentBadges": recentBadges,
 	}
-	
+
 	c.HTML(http.StatusOK, "admin/badges.html", data)
 }
 
@@ -136,20 +137,20 @@ func (h *AdminHandler) MakeAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid user ID"})
 		return
 	}
-	
+
 	// Update user role
 	err = h.userService.UpdateUserRole(uint(userID), "admin")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Log the action
 	currentUser := GetCurrentUser(c)
 	h.logAdminAction(currentUser, "make_admin", map[string]interface{}{
 		"target_user_id": userID,
 	})
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -160,20 +161,20 @@ func (h *AdminHandler) RemoveAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid user ID"})
 		return
 	}
-	
+
 	// Update user role
 	err = h.userService.UpdateUserRole(uint(userID), "user")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Log the action
 	currentUser := GetCurrentUser(c)
 	h.logAdminAction(currentUser, "remove_admin", map[string]interface{}{
 		"target_user_id": userID,
 	})
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -184,30 +185,30 @@ func (h *AdminHandler) DeleteUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid user ID"})
 		return
 	}
-	
+
 	var req struct {
 		Reason string `json:"reason" binding:"required"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Reason is required"})
 		return
 	}
-	
+
 	// Delete user
-	err = h.userService.DeleteUser(uint(userID), req.Reason)
+	err = h.userService.DeleteUser(uint(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Log the action
 	currentUser := GetCurrentUser(c)
 	h.logAdminAction(currentUser, "delete_user", map[string]interface{}{
 		"target_user_id": userID,
 		"reason":         req.Reason,
 	})
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -218,24 +219,24 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid user ID"})
 		return
 	}
-	
+
 	var req struct {
 		Reason   string `json:"reason" binding:"required"`
 		Duration int    `json:"duration"` // Duration in days, 0 for indefinite
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Reason is required"})
 		return
 	}
-	
+
 	// Suspend user
 	err = h.userService.SuspendUser(uint(userID), req.Reason, req.Duration)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Log the action
 	currentUser := GetCurrentUser(c)
 	h.logAdminAction(currentUser, "suspend_user", map[string]interface{}{
@@ -243,7 +244,7 @@ func (h *AdminHandler) SuspendUser(c *gin.Context) {
 		"reason":         req.Reason,
 		"duration":       req.Duration,
 	})
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -254,35 +255,35 @@ func (h *AdminHandler) AwardBadgeToUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Invalid user ID"})
 		return
 	}
-	
+
 	var req struct {
 		BadgeID uint   `json:"badge_id" binding:"required"`
 		Reason  string `json:"reason"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": "Badge ID is required"})
 		return
 	}
-	
+
 	// Get current admin user
 	currentUser := GetCurrentUser(c)
 	adminID := h.getCurrentUserID(currentUser)
-	
+
 	// Award badge
 	err = h.badgeService.AwardBadge(req.BadgeID, uint(userID), adminID, req.Reason)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Log the action
 	h.logAdminAction(currentUser, "award_badge", map[string]interface{}{
 		"target_user_id": userID,
 		"badge_id":       req.BadgeID,
 		"reason":         req.Reason,
 	})
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
@@ -298,16 +299,16 @@ func (h *AdminHandler) CreateBadge(c *gin.Context) {
 		IsPublic    bool   `json:"is_public"`
 		Criteria    string `json:"criteria"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Get current admin user
 	currentUser := GetCurrentUser(c)
 	adminID := h.getCurrentUserID(currentUser)
-	
+
 	// Create badge
 	badge := &models.Badge{
 		Name:        req.Name,
@@ -320,19 +321,19 @@ func (h *AdminHandler) CreateBadge(c *gin.Context) {
 		Criteria:    req.Criteria,
 		CreatedBy:   adminID,
 	}
-	
+
 	err := h.badgeService.CreateBadge(badge)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": err.Error()})
 		return
 	}
-	
+
 	// Log the action
 	h.logAdminAction(currentUser, "create_badge", map[string]interface{}{
 		"badge_id":   badge.ID,
 		"badge_name": badge.Name,
 	})
-	
+
 	c.JSON(http.StatusOK, gin.H{"success": true, "badge": badge})
 }
 
@@ -341,13 +342,13 @@ func (h *AdminHandler) CreateBadge(c *gin.Context) {
 func (h *AdminHandler) getDashboardStats() gin.H {
 	// This would typically fetch real data from services
 	return gin.H{
-		"TotalUsers":       156,
-		"NewUsersToday":    5,
+		"TotalUsers":        156,
+		"NewUsersToday":     5,
 		"TotalRepositories": 1247,
-		"NewReposToday":    12,
-		"StorageUsed":      "2.4 GB",
-		"StorageGrowth":    "+120 MB",
-		"ActiveUsers":      89,
+		"NewReposToday":     12,
+		"StorageUsed":       "2.4 GB",
+		"StorageGrowth":     "+120 MB",
+		"ActiveUsers":       89,
 	}
 }
 
@@ -455,7 +456,7 @@ func (h *AdminHandler) getBadgeStats() gin.H {
 func (h *AdminHandler) getRecentBadges() []gin.H {
 	badges, _, _ := h.badgeService.GetBadges("", nil, 3, 0)
 	result := make([]gin.H, len(badges))
-	
+
 	for i, badge := range badges {
 		result[i] = gin.H{
 			"ID":          badge.ID,
@@ -464,7 +465,7 @@ func (h *AdminHandler) getRecentBadges() []gin.H {
 			"IconURL":     badge.IconURL,
 		}
 	}
-	
+
 	return result
 }
 
@@ -510,14 +511,14 @@ func (h *AdminHandler) getUsersWithFilters(search, role, status, sortBy string, 
 			},
 		},
 	}
-	
+
 	return users, 1
 }
 
 func (h *AdminHandler) getAvailableBadges() []gin.H {
 	badges, _, _ := h.badgeService.GetBadges("", nil, 100, 0)
 	result := make([]gin.H, len(badges))
-	
+
 	for i, badge := range badges {
 		result[i] = gin.H{
 			"ID":          badge.ID,
@@ -527,7 +528,7 @@ func (h *AdminHandler) getAvailableBadges() []gin.H {
 			"IconURL":     badge.IconURL,
 		}
 	}
-	
+
 	return result
 }
 

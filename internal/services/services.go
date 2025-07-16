@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"gorm.io/gorm"
 	"pancakesgit/internal/models"
+
+	"gorm.io/gorm"
 )
 
 // UserService handles user-related operations
@@ -67,6 +68,27 @@ func (s *UserService) UpdateUser(user *models.User) error {
 // DeleteUser deletes a user
 func (s *UserService) DeleteUser(id uint) error {
 	return s.db.Delete(&models.User{}, id).Error
+}
+
+// UpdateUserRole updates a user's role
+func (s *UserService) UpdateUserRole(id uint, role string) error {
+	return s.db.Model(&models.User{}).Where("id = ?", id).Update("role", role).Error
+}
+
+// SuspendUser suspends a user account
+func (s *UserService) SuspendUser(id uint, reason string, durationDays int) error {
+	updates := map[string]interface{}{
+		"status":            "suspended",
+		"suspension_reason": reason,
+		"updated_at":        time.Now(),
+	}
+
+	if durationDays > 0 {
+		suspendedUntil := time.Now().AddDate(0, 0, durationDays)
+		updates["suspended_until"] = suspendedUntil
+	}
+
+	return s.db.Model(&models.User{}).Where("id = ?", id).Updates(updates).Error
 }
 
 // RepositoryService handles repository-related operations
