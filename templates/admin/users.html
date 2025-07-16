@@ -1,0 +1,608 @@
+{{define "content"}}
+<div class="admin-users">
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="admin-title">
+            <h1>
+                <i data-feather="users"></i>
+                User Management
+            </h1>
+            <p>Manage user accounts, roles, and permissions</p>
+        </div>
+        
+        <div class="admin-actions">
+            <a href="/admin/users/new" class="btn btn-primary">
+                <i data-feather="user-plus"></i>
+                Create User
+            </a>
+            <button class="btn btn-secondary" onclick="exportUsers()">
+                <i data-feather="download"></i>
+                Export Users
+            </button>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="user-filters">
+        <div class="filter-group">
+            <input type="text" id="userSearch" placeholder="Search users..." class="form-input">
+            <button class="btn" onclick="searchUsers()">
+                <i data-feather="search"></i>
+            </button>
+        </div>
+        
+        <div class="filter-group">
+            <select id="roleFilter" class="form-select" onchange="filterUsers()">
+                <option value="">All Roles</option>
+                <option value="admin">Admins</option>
+                <option value="user">Regular Users</option>
+                <option value="banned">Banned Users</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <select id="statusFilter" class="form-select" onchange="filterUsers()">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <select id="sortBy" class="form-select" onchange="sortUsers()">
+                <option value="created_desc">Newest First</option>
+                <option value="created_asc">Oldest First</option>
+                <option value="username_asc">Username A-Z</option>
+                <option value="username_desc">Username Z-A</option>
+                <option value="last_active">Last Active</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- User List -->
+    <div class="user-list-container">
+        <div class="user-list-header">
+            <div class="bulk-actions">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <label for="selectAll">Select All</label>
+                <div class="bulk-action-buttons" id="bulkActions" style="display: none;">
+                    <button class="btn btn-sm btn-secondary" onclick="bulkMakeAdmin()">Make Admin</button>
+                    <button class="btn btn-sm btn-warning" onclick="bulkSuspend()">Suspend</button>
+                    <button class="btn btn-sm btn-danger" onclick="bulkDelete()">Delete</button>
+                </div>
+            </div>
+            
+            <div class="list-info">
+                <span id="userCount">{{.TotalUsers}} users</span>
+                <span id="selectedCount" style="display: none;"></span>
+            </div>
+        </div>
+        
+        <div class="user-table">
+            <div class="table-header">
+                <div class="table-cell">User</div>
+                <div class="table-cell">Role</div>
+                <div class="table-cell">Status</div>
+                <div class="table-cell">Repositories</div>
+                <div class="table-cell">Last Active</div>
+                <div class="table-cell">Actions</div>
+            </div>
+            
+            <div class="table-body" id="userTableBody">
+                {{range .Users}}
+                    <div class="table-row" data-user-id="{{.ID}}">
+                        <div class="table-cell">
+                            <input type="checkbox" class="user-checkbox" value="{{.ID}}">
+                        </div>
+                        <div class="table-cell">
+                            <div class="user-info">
+                                <img src="{{.AvatarURL}}" alt="{{.Username}}" class="user-avatar">
+                                <div class="user-details">
+                                    <div class="user-name">
+                                        {{.Username}}
+                                        {{range .Badges}}
+                                            <span class="user-badge user-badge-{{.Rarity}}" data-color="{{.Color}}" title="{{.Description}}">
+                                                {{.Name}}
+                                            </span>
+                                        {{end}}
+                                    </div>
+                                    <div class="user-email">{{.Email}}</div>
+                                    <div class="user-meta">
+                                        ID: {{.ID}} • Joined {{.CreatedAt}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-cell">
+                            <span class="role-badge role-{{.Role}}">
+                                {{if eq .Role "admin"}}
+                                    <i data-feather="shield"></i>
+                                    Admin
+                                {{else if eq .Role "moderator"}}
+                                    <i data-feather="user-check"></i>
+                                    Moderator
+                                {{else}}
+                                    <i data-feather="user"></i>
+                                    User
+                                {{end}}
+                            </span>
+                        </div>
+                        <div class="table-cell">
+                            <span class="status-badge status-{{.Status}}">
+                                {{if eq .Status "active"}}
+                                    <i data-feather="check-circle"></i>
+                                    Active
+                                {{else if eq .Status "suspended"}}
+                                    <i data-feather="pause-circle"></i>
+                                    Suspended
+                                {{else if eq .Status "banned"}}
+                                    <i data-feather="x-circle"></i>
+                                    Banned
+                                {{else}}
+                                    <i data-feather="circle"></i>
+                                    Inactive
+                                {{end}}
+                            </span>
+                        </div>
+                        <div class="table-cell">
+                            <div class="repo-stats">
+                                <span class="repo-count">{{.RepositoryCount}}</span>
+                                <span class="repo-size">{{.TotalRepoSize}}</span>
+                            </div>
+                        </div>
+                        <div class="table-cell">
+                            <span class="last-active" title="{{.LastActiveAt}}">
+                                {{.LastActive}}
+                            </span>
+                        </div>
+                        <div class="table-cell">
+                            <div class="user-actions">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm dropdown-toggle" data-dropdown="user-{{.ID}}">
+                                        <i data-feather="more-horizontal"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" id="user-{{.ID}}">
+                                        <a href="/admin/users/{{.ID}}" class="dropdown-item">
+                                            <i data-feather="eye"></i>
+                                            View Details
+                                        </a>
+                                        <a href="/{{.Username}}" class="dropdown-item">
+                                            <i data-feather="external-link"></i>
+                                            View Profile
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        
+                                        {{if ne .Role "admin"}}
+                                            <button class="dropdown-item" onclick="makeAdmin('{{.ID}}')">
+                                                <i data-feather="shield"></i>
+                                                Make Admin
+                                            </button>
+                                        {{else if ne .ID $.User.ID}}
+                                            <button class="dropdown-item" onclick="removeAdmin('{{.ID}}')">
+                                                <i data-feather="user-minus"></i>
+                                                Remove Admin
+                                            </button>
+                                        {{end}}
+                                        
+                                        <button class="dropdown-item" onclick="awardBadgeToUser('{{.ID}}')">
+                                            <i data-feather="award"></i>
+                                            Award Badge
+                                        </button>
+                                        
+                                        <div class="dropdown-divider"></div>
+                                        
+                                        {{if eq .Status "active"}}
+                                            <button class="dropdown-item dropdown-item-warning" onclick="suspendUser('{{.ID}}')">
+                                                <i data-feather="pause-circle"></i>
+                                                Suspend User
+                                            </button>
+                                        {{else if eq .Status "suspended"}}
+                                            <button class="dropdown-item" onclick="unsuspendUser('{{.ID}}')">
+                                                <i data-feather="play-circle"></i>
+                                                Unsuspend User
+                                            </button>
+                                        {{end}}
+                                        
+                                        <button class="dropdown-item dropdown-item-warning" onclick="banUser('{{.ID}}')">
+                                            <i data-feather="x-circle"></i>
+                                            Ban User
+                                        </button>
+                                        
+                                        {{if ne .ID $.User.ID}}
+                                            <div class="dropdown-divider"></div>
+                                            <button class="dropdown-item dropdown-item-danger" onclick="deleteUser('{{.ID}}')">
+                                                <i data-feather="trash-2"></i>
+                                                Delete User
+                                            </button>
+                                        {{end}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                Showing {{.PageStart}} to {{.PageEnd}} of {{.TotalUsers}} users
+            </div>
+            <div class="pagination">
+                {{if .HasPrevPage}}
+                    <a href="?page={{.PrevPage}}" class="pagination-btn">
+                        <i data-feather="chevron-left"></i>
+                        Previous
+                    </a>
+                {{end}}
+                
+                {{range .Pages}}
+                    <a href="?page={{.}}" class="pagination-btn {{if eq . $.CurrentPage}}active{{end}}">
+                        {{.}}
+                    </a>
+                {{end}}
+                
+                {{if .HasNextPage}}
+                    <a href="?page={{.NextPage}}" class="pagination-btn">
+                        Next
+                        <i data-feather="chevron-right"></i>
+                    </a>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Award Badge Modal -->
+<div class="modal" id="awardBadgeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Award Badge</h3>
+            <button class="modal-close" onclick="closeModal('awardBadgeModal')">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="awardBadgeForm">
+                <input type="hidden" id="awardUserId">
+                <div class="form-group">
+                    <label class="form-label">Select Badge</label>
+                    <select id="badgeSelect" class="form-select" required>
+                        <option value="">Choose a badge...</option>
+                        {{range .AvailableBadges}}
+                            <option value="{{.ID}}" data-color="{{.Color}}" data-icon="{{.IconURL}}">
+                                {{.Name}} - {{.Description}}
+                            </option>
+                        {{end}}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reason (optional)</label>
+                    <textarea id="awardReason" class="form-textarea" placeholder="Why is this badge being awarded?"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('awardBadgeModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitAwardBadge()">Award Badge</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-filters {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-lg);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+}
+
+.filter-group {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.user-list-container {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.user-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.bulk-action-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.user-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 40px 2fr 1fr 1fr 1fr 1fr 120px;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 40px 2fr 1fr 1fr 1fr 1fr 120px;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-primary);
+    transition: var(--transition);
+}
+
+.table-row:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.table-cell {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.user-badge {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+}
+
+.user-badge-common {
+    background-color: #6c757d;
+}
+
+.user-badge-rare {
+    background-color: #2f81f7;
+}
+
+.user-badge-epic {
+    background-color: #8250df;
+}
+
+.user-badge-legendary {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.user-email {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.user-meta {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.role-badge, .status-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.role-admin { background-color: rgba(218, 54, 51, 0.1); color: var(--accent-danger); }
+.role-moderator { background-color: rgba(130, 80, 223, 0.1); color: #8250df; }
+.role-user { background-color: rgba(139, 148, 158, 0.2); color: var(--text-secondary); }
+
+.status-active { background-color: rgba(35, 134, 54, 0.1); color: var(--accent-primary); }
+.status-suspended { background-color: rgba(210, 153, 34, 0.1); color: var(--accent-warning); }
+.status-banned { background-color: rgba(218, 54, 51, 0.1); color: var(--accent-danger); }
+.status-inactive { background-color: rgba(139, 148, 158, 0.2); color: var(--text-secondary); }
+
+.repo-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.repo-count {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.repo-size {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background-color: var(--bg-tertiary);
+    border-top: 1px solid var(--border-primary);
+}
+
+.pagination {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover {
+    background-color: var(--bg-overlay);
+    text-decoration: none;
+}
+
+.pagination-btn.active {
+    background-color: var(--accent-secondary);
+    color: white;
+    border-color: var(--accent-secondary);
+}
+
+@media (max-width: 768px) {
+    .user-filters {
+        flex-direction: column;
+    }
+    
+    .table-header,
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .table-cell {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+<script>
+// User management JavaScript functions will be added here
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    const bulkActions = document.getElementById('bulkActions');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    
+    updateBulkActions();
+}
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (checkboxes.length > 0) {
+        bulkActions.style.display = 'flex';
+        selectedCount.style.display = 'inline';
+        selectedCount.textContent = `${checkboxes.length} selected`;
+    } else {
+        bulkActions.style.display = 'none';
+        selectedCount.style.display = 'none';
+    }
+}
+
+// Add event listeners to checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+
+    // Apply custom badge colors
+    const badges = document.querySelectorAll('.user-badge[data-color]');
+    badges.forEach(badge => {
+        const color = badge.getAttribute('data-color');
+        if (color) {
+            badge.style.backgroundColor = color;
+        }
+    });
+});
+
+function awardBadgeToUser(userId) {
+    document.getElementById('awardUserId').value = userId;
+    document.getElementById('awardBadgeModal').classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+function submitAwardBadge() {
+    const userId = document.getElementById('awardUserId').value;
+    const badgeId = document.getElementById('badgeSelect').value;
+    const reason = document.getElementById('awardReason').value;
+    
+    if (!badgeId) {
+        alert('Please select a badge');
+        return;
+    }
+    
+    fetch(`/admin/users/${userId}/award-badge`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            badge_id: badgeId,
+            reason: reason
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal('awardBadgeModal');
+            location.reload();
+        } else {
+            alert('Failed to award badge: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+</script>
+{{end}}

@@ -1,0 +1,508 @@
+{{define "content"}}
+{{if .User}}
+    <!-- Logged in user sees dashboard -->
+    {{template "dashboard.html" .}}
+{{else}}
+    <!-- Anonymous user sees landing page -->
+    <div class="landing">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        Privacy-first Git hosting
+                        <span class="hero-highlight">🥞</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Your code, your data, your control. PancakesGit provides secure, 
+                        encrypted Git hosting with zero-knowledge architecture.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="/register" class="btn btn-primary btn-lg">
+                            <i data-feather="user-plus"></i>
+                            Get started for free
+                        </a>
+                        <a href="/about" class="btn btn-secondary btn-lg">
+                            <i data-feather="info"></i>
+                            Learn more
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="terminal-window">
+                        <div class="terminal-header">
+                            <div class="terminal-buttons">
+                                <span class="terminal-button terminal-close"></span>
+                                <span class="terminal-button terminal-minimize"></span>
+                                <span class="terminal-button terminal-maximize"></span>
+                            </div>
+                            <div class="terminal-title">Terminal</div>
+                        </div>
+                        <div class="terminal-body">
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-command">git clone https://pancakes.git/user/repo.git</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">🔒 Decrypting repository...</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-output">✅ Clone completed securely</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="terminal-prompt">$</span>
+                                <span class="terminal-cursor">_</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Features Section -->
+        <section class="features">
+            <div class="features-header">
+                <h2>Built for privacy and security</h2>
+                <p>Every feature designed with your privacy in mind</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="lock"></i>
+                    </div>
+                    <h3>End-to-end encryption</h3>
+                    <p>Your repositories are encrypted with AES-256-GCM. We can't see your code, even if we wanted to.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="shield"></i>
+                    </div>
+                    <h3>Zero-knowledge architecture</h3>
+                    <p>Your encryption keys never leave your device. We store encrypted data, not your secrets.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="eye-off"></i>
+                    </div>
+                    <h3>No tracking</h3>
+                    <p>No analytics, no tracking pixels, no data mining. Your activity stays private.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="globe"></i>
+                    </div>
+                    <h3>Tor-friendly</h3>
+                    <p>Access your repositories over Tor for maximum anonymity and censorship resistance.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="git-branch"></i>
+                    </div>
+                    <h3>Full Git support</h3>
+                    <p>Complete Git protocol support with SSH and HTTPS. Works with all your favorite Git tools.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="users"></i>
+                    </div>
+                    <h3>Secure collaboration</h3>
+                    <p>Share repositories securely with encrypted access controls and audit logs.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Security Section -->
+        <section class="security">
+            <div class="security-content">
+                <div class="security-text">
+                    <h2>Security by design</h2>
+                    <p>
+                        PancakesGit is built from the ground up with security and privacy as core principles, 
+                        not afterthoughts.
+                    </p>
+                    
+                    <div class="security-features">
+                        <div class="security-feature">
+                            <i data-feather="check-circle"></i>
+                            <span>Client-side encryption</span>
+                        </div>
+                        <div class="security-feature">
+                            <i data-feather="check-circle"></i>
+                            <span>Argon2id password hashing</span>
+                        </div>
+                        <div class="security-feature">
+                            <i data-feather="check-circle"></i>
+                            <span>Two-factor authentication</span>
+                        </div>
+                        <div class="security-feature">
+                            <i data-feather="check-circle"></i>
+                            <span>Secure session management</span>
+                        </div>
+                        <div class="security-feature">
+                            <i data-feather="check-circle"></i>
+                            <span>Regular security audits</span>
+                        </div>
+                        <div class="security-feature">
+                            <i data-feather="check-circle"></i>
+                            <span>Open source transparency</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-visual">
+                    <div class="encryption-demo">
+                        <div class="encryption-step">
+                            <div class="step-icon">📝</div>
+                            <div class="step-text">Your code</div>
+                        </div>
+                        <div class="encryption-arrow">→</div>
+                        <div class="encryption-step">
+                            <div class="step-icon">🔐</div>
+                            <div class="step-text">Encrypted locally</div>
+                        </div>
+                        <div class="encryption-arrow">→</div>
+                        <div class="encryption-step">
+                            <div class="step-icon">☁️</div>
+                            <div class="step-text">Stored securely</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="cta-content">
+                <h2>Ready to protect your code?</h2>
+                <p>Join developers who value privacy and security</p>
+                <div class="cta-actions">
+                    <a href="/register" class="btn btn-primary btn-lg">
+                        <i data-feather="user-plus"></i>
+                        Create your account
+                    </a>
+                    <a href="/docs" class="btn btn-secondary btn-lg">
+                        <i data-feather="book"></i>
+                        Read the docs
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+{{end}}
+
+<style>
+.landing {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Hero Section */
+.hero {
+    padding: var(--spacing-2xl) 0;
+    text-align: center;
+}
+
+.hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-2xl);
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.1;
+}
+
+.hero-highlight {
+    font-size: 3.5rem;
+    display: inline-block;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-2xl);
+    line-height: 1.5;
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+}
+
+.btn-lg {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 1rem;
+}
+
+/* Terminal Visual */
+.terminal-window {
+    background-color: #1e1e1e;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    font-family: var(--font-mono);
+}
+
+.terminal-header {
+    background-color: #2d2d2d;
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.terminal-button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.terminal-close { background-color: #ff5f56; }
+.terminal-minimize { background-color: #ffbd2e; }
+.terminal-maximize { background-color: #27ca3f; }
+
+.terminal-title {
+    color: #ccc;
+    font-size: 0.875rem;
+}
+
+.terminal-body {
+    padding: var(--spacing-lg);
+    color: #fff;
+    font-size: 0.875rem;
+}
+
+.terminal-line {
+    margin-bottom: var(--spacing-sm);
+}
+
+.terminal-prompt {
+    color: #27ca3f;
+    margin-right: var(--spacing-sm);
+}
+
+.terminal-command {
+    color: #fff;
+}
+
+.terminal-output {
+    color: #ccc;
+}
+
+.terminal-cursor {
+    color: #27ca3f;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Features Section */
+.features {
+    padding: var(--spacing-2xl) 0;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-lg);
+    margin: var(--spacing-2xl) 0;
+}
+
+.features-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.features-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.features-header p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    padding: 0 var(--spacing-xl);
+}
+
+.feature-card {
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    background-color: var(--accent-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-lg) auto;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.feature-card h3 {
+    margin-bottom: var(--spacing-md);
+    font-size: 1.25rem;
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Security Section */
+.security {
+    padding: var(--spacing-2xl) 0;
+}
+
+.security-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-2xl);
+    align-items: center;
+}
+
+.security-text h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.security-text p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+}
+
+.security-features {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.security-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--accent-primary);
+}
+
+/* Encryption Demo */
+.encryption-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-lg);
+}
+
+.encryption-step {
+    text-align: center;
+}
+
+.step-icon {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.step-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.encryption-arrow {
+    font-size: 1.5rem;
+    color: var(--accent-secondary);
+}
+
+/* CTA Section */
+.cta {
+    padding: var(--spacing-2xl) 0;
+    text-align: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-lg);
+    margin: var(--spacing-2xl) 0;
+}
+
+.cta-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.cta-content p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+}
+
+.cta-actions {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-content,
+    .security-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-actions,
+    .cta-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        padding: 0 var(--spacing-md);
+    }
+    
+    .encryption-demo {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+    
+    .encryption-arrow {
+        transform: rotate(90deg);
+    }
+}
+</style>
+{{end}}

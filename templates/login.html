@@ -1,0 +1,239 @@
+{{define "content"}}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <span class="brand-icon">🥞</span>
+                <h1>Sign in to PancakesGit</h1>
+            </div>
+            <p class="auth-subtitle">Privacy-focused Git hosting</p>
+        </div>
+        
+        <form class="auth-form" action="/login" method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">Username or email</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-input" 
+                    required 
+                    autocomplete="username"
+                    value="{{.Username}}"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    required 
+                    autocomplete="current-password"
+                >
+            </div>
+            
+            <div class="form-group form-checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remember" class="checkbox-input">
+                    <span class="checkbox-custom"></span>
+                    Remember me
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">
+                <i data-feather="log-in"></i>
+                Sign in
+            </button>
+        </form>
+        
+        <div class="auth-links">
+            <a href="/forgot-password" class="auth-link">Forgot your password?</a>
+        </div>
+        
+        <div class="auth-divider">
+            <span>New to PancakesGit?</span>
+        </div>
+        
+        <div class="auth-signup">
+            <a href="/register" class="btn btn-secondary btn-full">
+                <i data-feather="user-plus"></i>
+                Create an account
+            </a>
+        </div>
+        
+        <div class="auth-footer">
+            <div class="privacy-notice">
+                <i data-feather="shield"></i>
+                <span>Your privacy is protected with end-to-end encryption</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-2xl);
+    box-shadow: var(--shadow-lg);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.auth-logo {
+    margin-bottom: var(--spacing-md);
+}
+
+.auth-logo .brand-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: var(--spacing-md);
+}
+
+.auth-logo h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.auth-form {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-custom {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-primary);
+    border-radius: 3px;
+    background-color: var(--bg-primary);
+    position: relative;
+    transition: var(--transition);
+}
+
+.checkbox-input:checked + .checkbox-custom {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+.auth-links {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.auth-link {
+    color: var(--accent-secondary);
+    font-size: 0.875rem;
+}
+
+.auth-divider {
+    text-align: center;
+    margin: var(--spacing-xl) 0;
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--border-primary);
+    z-index: 1;
+}
+
+.auth-divider span {
+    background-color: var(--bg-secondary);
+    padding: 0 var(--spacing-md);
+    position: relative;
+    z-index: 2;
+}
+
+.auth-signup {
+    margin-bottom: var(--spacing-xl);
+}
+
+.auth-footer {
+    text-align: center;
+}
+
+.privacy-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    color: var(--accent-primary);
+    font-size: 0.875rem;
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        padding: var(--spacing-md);
+    }
+    
+    .auth-card {
+        padding: var(--spacing-xl);
+    }
+}
+</style>
+{{end}}

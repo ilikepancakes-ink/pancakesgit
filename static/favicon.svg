@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="pancakeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Pancake stack -->
+  <ellipse cx="50" cy="75" rx="35" ry="8" fill="#8B4513" opacity="0.3"/>
+  
+  <!-- Bottom pancake -->
+  <ellipse cx="50" cy="70" rx="30" ry="6" fill="url(#pancakeGradient)"/>
+  <ellipse cx="50" cy="68" rx="30" ry="6" fill="#FFE55C"/>
+  
+  <!-- Middle pancake -->
+  <ellipse cx="50" cy="55" rx="28" ry="5" fill="url(#pancakeGradient)"/>
+  <ellipse cx="50" cy="53" rx="28" ry="5" fill="#FFE55C"/>
+  
+  <!-- Top pancake -->
+  <ellipse cx="50" cy="40" rx="26" ry="5" fill="url(#pancakeGradient)"/>
+  <ellipse cx="50" cy="38" rx="26" ry="5" fill="#FFE55C"/>
+  
+  <!-- Butter -->
+  <ellipse cx="50" cy="32" rx="8" ry="3" fill="#FFFF99"/>
+  <ellipse cx="50" cy="30" rx="8" ry="3" fill="#FFFACD"/>
+  
+  <!-- Security shield overlay -->
+  <path d="M50 15 L60 20 L60 35 Q60 45 50 50 Q40 45 40 35 L40 20 Z" 
+        fill="none" 
+        stroke="#238636" 
+        stroke-width="2" 
+        opacity="0.8"/>
+  
+  <!-- Lock icon in shield -->
+  <rect x="47" y="25" width="6" height="8" rx="1" 
+        fill="none" 
+        stroke="#238636" 
+        stroke-width="1.5"/>
+  <circle cx="50" cy="23" r="3" 
+          fill="none" 
+          stroke="#238636" 
+          stroke-width="1.5"/>
+</svg>

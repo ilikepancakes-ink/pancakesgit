@@ -1,0 +1,312 @@
+{{define "content"}}
+<div class="dashboard">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>Dashboard</h1>
+            <p>Welcome back, {{.User.Username}}! Here's what's happening with your repositories.</p>
+        </div>
+        
+        <div class="dashboard-actions">
+            <a href="/new" class="btn btn-primary">
+                <i data-feather="plus"></i>
+                New repository
+            </a>
+        </div>
+    </div>
+    
+    <!-- Dashboard Stats -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i data-feather="git-branch"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.RepositoryCount}}</div>
+                <div class="stat-label">Repositories</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i data-feather="star"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.StarCount}}</div>
+                <div class="stat-label">Stars received</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i data-feather="git-commit"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.CommitCount}}</div>
+                <div class="stat-label">Commits this month</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i data-feather="users"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.CollaboratorCount}}</div>
+                <div class="stat-label">Collaborators</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Content Grid -->
+    <div class="dashboard-grid">
+        <!-- Recent Activity -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Recent activity</h2>
+                <a href="/{{.User.Username}}?tab=activity" class="section-link">View all</a>
+            </div>
+            
+            <div class="activity-feed">
+                {{if .RecentActivity}}
+                    {{range .RecentActivity}}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i data-feather="{{.Icon}}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">
+                                    {{.Description}}
+                                </div>
+                                <div class="activity-meta">
+                                    <a href="{{.RepositoryURL}}" class="activity-repo">{{.Repository}}</a>
+                                    <span class="activity-time">{{.TimeAgo}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="empty-state">
+                        <i data-feather="activity"></i>
+                        <h3>No recent activity</h3>
+                        <p>Your activity will appear here when you start working on repositories.</p>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        
+        <!-- Your Repositories -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Your repositories</h2>
+                <a href="/{{.User.Username}}?tab=repositories" class="section-link">View all</a>
+            </div>
+            
+            <div class="repository-list">
+                {{if .RecentRepositories}}
+                    {{range .RecentRepositories}}
+                        <div class="repository-item">
+                            <div class="repo-header">
+                                <a href="/{{$.User.Username}}/{{.Name}}" class="repo-name">
+                                    <i data-feather="{{if .IsPrivate}}lock{{else}}git-branch{{end}}"></i>
+                                    {{.Name}}
+                                </a>
+                                <div class="repo-badges">
+                                    {{if .IsPrivate}}
+                                        <span class="badge badge-private">Private</span>
+                                    {{end}}
+                                    {{if .IsArchived}}
+                                        <span class="badge badge-archived">Archived</span>
+                                    {{end}}
+                                </div>
+                            </div>
+                            
+                            {{if .Description}}
+                                <p class="repo-description">{{.Description}}</p>
+                            {{end}}
+                            
+                            <div class="repo-meta">
+                                {{if .Language}}
+                                    <span class="repo-language">
+                                        <span class="language-color" style="background-color: {{.LanguageColor}}"></span>
+                                        {{.Language}}
+                                    </span>
+                                {{end}}
+                                
+                                {{if .StarCount}}
+                                    <span class="repo-stars">
+                                        <i data-feather="star"></i>
+                                        {{.StarCount}}
+                                    </span>
+                                {{end}}
+                                
+                                <span class="repo-updated">
+                                    Updated {{.UpdatedAt}}
+                                </span>
+                            </div>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="empty-state">
+                        <i data-feather="git-branch"></i>
+                        <h3>No repositories yet</h3>
+                        <p>Create your first repository to get started.</p>
+                        <a href="/new" class="btn btn-primary">Create repository</a>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        
+        <!-- Starred Repositories -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Recently starred</h2>
+                <a href="/{{.User.Username}}?tab=stars" class="section-link">View all</a>
+            </div>
+            
+            <div class="repository-list">
+                {{if .StarredRepositories}}
+                    {{range .StarredRepositories}}
+                        <div class="repository-item">
+                            <div class="repo-header">
+                                <a href="/{{.Owner}}/{{.Name}}" class="repo-name">
+                                    <i data-feather="{{if .IsPrivate}}lock{{else}}git-branch{{end}}"></i>
+                                    {{.Owner}}/{{.Name}}
+                                </a>
+                            </div>
+                            
+                            {{if .Description}}
+                                <p class="repo-description">{{.Description}}</p>
+                            {{end}}
+                            
+                            <div class="repo-meta">
+                                {{if .Language}}
+                                    <span class="repo-language">
+                                        <span class="language-color" style="background-color: {{.LanguageColor}}"></span>
+                                        {{.Language}}
+                                    </span>
+                                {{end}}
+                                
+                                <span class="repo-stars">
+                                    <i data-feather="star"></i>
+                                    {{.StarCount}}
+                                </span>
+                                
+                                <span class="repo-updated">
+                                    Starred {{.StarredAt}}
+                                </span>
+                            </div>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="empty-state">
+                        <i data-feather="star"></i>
+                        <h3>No starred repositories</h3>
+                        <p>Star repositories you find interesting to see them here.</p>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        
+        <!-- Pull Requests -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Pull requests</h2>
+                <a href="/pulls" class="section-link">View all</a>
+            </div>
+            
+            <div class="pr-tabs">
+                <button class="tab-btn active" data-tab="assigned">Assigned to you</button>
+                <button class="tab-btn" data-tab="created">Created by you</button>
+                <button class="tab-btn" data-tab="review">Review requests</button>
+            </div>
+            
+            <div class="pr-list">
+                {{if .PullRequests}}
+                    {{range .PullRequests}}
+                        <div class="pr-item">
+                            <div class="pr-icon">
+                                <i data-feather="git-pull-request" class="pr-icon-{{.State}}"></i>
+                            </div>
+                            <div class="pr-content">
+                                <a href="/{{.Repository}}/pull/{{.Number}}" class="pr-title">{{.Title}}</a>
+                                <div class="pr-meta">
+                                    <span class="pr-number">#{{.Number}}</span>
+                                    <span class="pr-repo">{{.Repository}}</span>
+                                    <span class="pr-author">by {{.Author}}</span>
+                                    <span class="pr-time">{{.TimeAgo}}</span>
+                                </div>
+                            </div>
+                            <div class="pr-status">
+                                <span class="badge badge-{{.State}}">{{.State}}</span>
+                            </div>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="empty-state">
+                        <i data-feather="git-pull-request"></i>
+                        <h3>No pull requests</h3>
+                        <p>Pull requests assigned to you will appear here.</p>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        
+        <!-- Issues -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Issues</h2>
+                <a href="/issues" class="section-link">View all</a>
+            </div>
+            
+            <div class="issue-list">
+                {{if .Issues}}
+                    {{range .Issues}}
+                        <div class="issue-item">
+                            <div class="issue-icon">
+                                <i data-feather="{{if eq .State "open"}}alert-circle{{else}}check-circle{{end}}" class="issue-icon-{{.State}}"></i>
+                            </div>
+                            <div class="issue-content">
+                                <a href="/{{.Repository}}/issues/{{.Number}}" class="issue-title">{{.Title}}</a>
+                                <div class="issue-meta">
+                                    <span class="issue-number">#{{.Number}}</span>
+                                    <span class="issue-repo">{{.Repository}}</span>
+                                    <span class="issue-author">by {{.Author}}</span>
+                                    <span class="issue-time">{{.TimeAgo}}</span>
+                                </div>
+                            </div>
+                            <div class="issue-labels">
+                                {{range .Labels}}
+                                    <span class="label" style="background-color: {{.Color}}">{{.Name}}</span>
+                                {{end}}
+                            </div>
+                        </div>
+                    {{end}}
+                {{else}}
+                    <div class="empty-state">
+                        <i data-feather="alert-circle"></i>
+                        <h3>No issues</h3>
+                        <p>Issues assigned to you will appear here.</p>
+                    </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize PR tabs
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Here you would typically load different PR data
+            // For now, we'll just update the active state
+        });
+    });
+});
+</script>
+{{end}}

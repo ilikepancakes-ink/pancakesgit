@@ -1,0 +1,274 @@
+/* Theme-specific styles for PancakesGit */
+
+/* High contrast theme */
+[data-theme="high-contrast"] {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --bg-overlay: #3a3a3a;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #999999;
+  
+  --border-primary: #555555;
+  --border-secondary: #444444;
+  
+  --accent-primary: #00ff00;
+  --accent-secondary: #0099ff;
+  --accent-danger: #ff0000;
+  --accent-warning: #ffff00;
+}
+
+/* Sepia theme for reduced eye strain */
+[data-theme="sepia"] {
+  --bg-primary: #f4f1ea;
+  --bg-secondary: #ede6d3;
+  --bg-tertiary: #e6dcc3;
+  --bg-overlay: #ffffff;
+  
+  --text-primary: #5c4b37;
+  --text-secondary: #8b7355;
+  --text-muted: #a68b5b;
+  
+  --border-primary: #d3c7b8;
+  --border-secondary: #c9b99f;
+  
+  --accent-primary: #8b4513;
+  --accent-secondary: #4682b4;
+  --accent-danger: #cd5c5c;
+  --accent-warning: #daa520;
+}
+
+/* Colorblind-friendly theme */
+[data-theme="colorblind"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-overlay: #ffffff;
+  
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  
+  --border-primary: #dee2e6;
+  --border-secondary: #e9ecef;
+  
+  --accent-primary: #0066cc;  /* Blue instead of green */
+  --accent-secondary: #6610f2; /* Purple */
+  --accent-danger: #dc3545;   /* Red */
+  --accent-warning: #fd7e14;  /* Orange instead of yellow */
+}
+
+/* Theme transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Theme-specific component adjustments */
+
+/* Terminal in different themes */
+[data-theme="light"] .terminal-window {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+[data-theme="light"] .terminal-header {
+  background-color: #e9ecef;
+}
+
+[data-theme="light"] .terminal-body {
+  color: #212529;
+}
+
+[data-theme="light"] .terminal-prompt {
+  color: #28a745;
+}
+
+[data-theme="light"] .terminal-output {
+  color: #6c757d;
+}
+
+[data-theme="high-contrast"] .terminal-window {
+  background-color: #000000;
+  border: 2px solid #ffffff;
+}
+
+[data-theme="high-contrast"] .terminal-header {
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #ffffff;
+}
+
+[data-theme="sepia"] .terminal-window {
+  background-color: #3e2723;
+  color: #d7ccc8;
+}
+
+[data-theme="sepia"] .terminal-header {
+  background-color: #5d4037;
+}
+
+/* Code syntax highlighting adjustments */
+[data-theme="light"] .highlight {
+  background-color: #f8f9fa;
+}
+
+[data-theme="sepia"] .highlight {
+  background-color: #ede6d3;
+}
+
+[data-theme="high-contrast"] .highlight {
+  background-color: #1a1a1a;
+  border: 1px solid #555555;
+}
+
+/* Form elements in different themes */
+[data-theme="sepia"] .form-input,
+[data-theme="sepia"] .form-textarea,
+[data-theme="sepia"] .form-select {
+  background-color: #f4f1ea;
+  border-color: #d3c7b8;
+  color: #5c4b37;
+}
+
+[data-theme="high-contrast"] .form-input,
+[data-theme="high-contrast"] .form-textarea,
+[data-theme="high-contrast"] .form-select {
+  background-color: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+  border-width: 2px;
+}
+
+/* Button adjustments */
+[data-theme="high-contrast"] .btn {
+  border-width: 2px;
+  font-weight: bold;
+}
+
+[data-theme="colorblind"] .btn-primary {
+  background-color: #0066cc;
+  border-color: #0066cc;
+}
+
+[data-theme="colorblind"] .btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+/* Flash message adjustments */
+[data-theme="colorblind"] .flash-success {
+  background-color: rgba(0, 102, 204, 0.1);
+  border-left-color: #0066cc;
+  color: #0066cc;
+}
+
+[data-theme="high-contrast"] .flash {
+  border-width: 2px;
+  border-style: solid;
+}
+
+/* Navigation adjustments */
+[data-theme="sepia"] .navbar {
+  background-color: #ede6d3;
+  border-bottom-color: #d3c7b8;
+}
+
+[data-theme="high-contrast"] .navbar {
+  border-bottom-width: 2px;
+}
+
+/* Accessibility improvements */
+[data-theme="high-contrast"] a:focus,
+[data-theme="high-contrast"] button:focus,
+[data-theme="high-contrast"] input:focus,
+[data-theme="high-contrast"] textarea:focus,
+[data-theme="high-contrast"] select:focus {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .hero-highlight {
+    animation: none;
+  }
+  
+  .terminal-cursor {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .footer,
+  .flash-messages,
+  .btn,
+  .dropdown-menu {
+    display: none !important;
+  }
+  
+  .main-content {
+    max-width: none;
+    padding: 0;
+  }
+  
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  a {
+    text-decoration: underline !important;
+  }
+  
+  .dashboard-section,
+  .feature-card,
+  .stat-card {
+    border: 1px solid #000 !important;
+    break-inside: avoid;
+  }
+}
+
+/* Dark mode media query fallback */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-overlay: #30363d;
+    
+    --text-primary: #f0f6fc;
+    --text-secondary: #8b949e;
+    --text-muted: #656d76;
+    
+    --border-primary: #30363d;
+    --border-secondary: #21262d;
+  }
+}
+
+/* Light mode media query fallback */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f8fa;
+    --bg-tertiary: #f1f3f4;
+    --bg-overlay: #ffffff;
+    
+    --text-primary: #24292f;
+    --text-secondary: #656d76;
+    --text-muted: #8b949e;
+    
+    --border-primary: #d0d7de;
+    --border-secondary: #d8dee4;
+  }
+}

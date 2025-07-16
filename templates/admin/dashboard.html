@@ -1,0 +1,683 @@
+{{define "content"}}
+<div class="admin-dashboard">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="admin-title">
+            <h1>
+                <i data-feather="shield"></i>
+                Admin Dashboard
+            </h1>
+            <p>Manage users, repositories, and system settings</p>
+        </div>
+        
+        <div class="admin-actions">
+            <a href="/admin/users/new" class="btn btn-primary">
+                <i data-feather="user-plus"></i>
+                Create User
+            </a>
+            <a href="/admin/badges/new" class="btn btn-secondary">
+                <i data-feather="award"></i>
+                Create Badge
+            </a>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="admin-stats">
+        <div class="stat-card stat-users">
+            <div class="stat-icon">
+                <i data-feather="users"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.TotalUsers}}</div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-change">+{{.Stats.NewUsersToday}} today</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-repos">
+            <div class="stat-icon">
+                <i data-feather="git-branch"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.TotalRepositories}}</div>
+                <div class="stat-label">Repositories</div>
+                <div class="stat-change">+{{.Stats.NewReposToday}} today</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-storage">
+            <div class="stat-icon">
+                <i data-feather="hard-drive"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.StorageUsed}}</div>
+                <div class="stat-label">Storage Used</div>
+                <div class="stat-change">{{.Stats.StorageGrowth}} this week</div>
+            </div>
+        </div>
+        
+        <div class="stat-card stat-active">
+            <div class="stat-icon">
+                <i data-feather="activity"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number">{{.Stats.ActiveUsers}}</div>
+                <div class="stat-label">Active Users</div>
+                <div class="stat-change">Last 24 hours</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Navigation -->
+    <div class="admin-nav">
+        <a href="/admin" class="admin-nav-item active">
+            <i data-feather="home"></i>
+            Dashboard
+        </a>
+        <a href="/admin/users" class="admin-nav-item">
+            <i data-feather="users"></i>
+            Users
+        </a>
+        <a href="/admin/repositories" class="admin-nav-item">
+            <i data-feather="git-branch"></i>
+            Repositories
+        </a>
+        <a href="/admin/badges" class="admin-nav-item">
+            <i data-feather="award"></i>
+            Badges
+        </a>
+        <a href="/admin/system" class="admin-nav-item">
+            <i data-feather="server"></i>
+            System
+        </a>
+        <a href="/admin/logs" class="admin-nav-item">
+            <i data-feather="file-text"></i>
+            Logs
+        </a>
+        <a href="/admin/settings" class="admin-nav-item">
+            <i data-feather="settings"></i>
+            Settings
+        </a>
+    </div>
+    
+    <!-- Dashboard Content -->
+    <div class="admin-content">
+        <!-- Recent Activity -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>Recent Activity</h2>
+                <a href="/admin/logs" class="section-link">View all logs</a>
+            </div>
+            
+            <div class="activity-list">
+                {{range .RecentActivity}}
+                    <div class="activity-item activity-{{.Type}}">
+                        <div class="activity-icon">
+                            <i data-feather="{{.Icon}}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">{{.Description}}</div>
+                            <div class="activity-meta">
+                                <span class="activity-user">{{.User}}</span>
+                                <span class="activity-time">{{.TimeAgo}}</span>
+                            </div>
+                        </div>
+                        {{if .Action}}
+                            <div class="activity-action">
+                                <a href="{{.ActionURL}}" class="btn btn-sm">{{.Action}}</a>
+                            </div>
+                        {{end}}
+                    </div>
+                {{end}}
+            </div>
+        </div>
+        
+        <!-- User Management Quick Actions -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>User Management</h2>
+                <a href="/admin/users" class="section-link">Manage all users</a>
+            </div>
+            
+            <div class="user-quick-actions">
+                <div class="quick-action-card">
+                    <h3>Recent Registrations</h3>
+                    <div class="user-list">
+                        {{range .RecentUsers}}
+                            <div class="user-item">
+                                <img src="{{.AvatarURL}}" alt="{{.Username}}" class="user-avatar">
+                                <div class="user-info">
+                                    <div class="user-name">{{.Username}}</div>
+                                    <div class="user-email">{{.Email}}</div>
+                                    <div class="user-meta">Joined {{.CreatedAt}}</div>
+                                </div>
+                                <div class="user-actions">
+                                    <button class="btn btn-sm btn-primary" onclick="makeAdmin('{{.ID}}')">
+                                        <i data-feather="shield"></i>
+                                        Make Admin
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteUser('{{.ID}}')">
+                                        <i data-feather="trash-2"></i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+                
+                <div class="quick-action-card">
+                    <h3>Admin Users</h3>
+                    <div class="admin-list">
+                        {{range .AdminUsers}}
+                            <div class="admin-item">
+                                <img src="{{.AvatarURL}}" alt="{{.Username}}" class="user-avatar">
+                                <div class="user-info">
+                                    <div class="user-name">
+                                        {{.Username}}
+                                        <span class="admin-badge">Admin</span>
+                                    </div>
+                                    <div class="user-meta">Last active {{.LastActive}}</div>
+                                </div>
+                                {{if ne .ID $.User.ID}}
+                                    <div class="user-actions">
+                                        <button class="btn btn-sm btn-secondary" onclick="removeAdmin('{{.ID}}')">
+                                            <i data-feather="user-minus"></i>
+                                            Remove Admin
+                                        </button>
+                                    </div>
+                                {{end}}
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Repository Management -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>Repository Management</h2>
+                <a href="/admin/repositories" class="section-link">Manage all repositories</a>
+            </div>
+            
+            <div class="repo-stats-grid">
+                <div class="repo-stat-card">
+                    <h4>Largest Repositories</h4>
+                    <div class="repo-list">
+                        {{range .LargestRepos}}
+                            <div class="repo-item">
+                                <div class="repo-info">
+                                    <div class="repo-name">{{.Owner}}/{{.Name}}</div>
+                                    <div class="repo-size">{{.Size}}</div>
+                                </div>
+                                <div class="repo-actions">
+                                    <a href="/{{.Owner}}/{{.Name}}" class="btn btn-sm">View</a>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteRepo('{{.ID}}')">Delete</button>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+                
+                <div class="repo-stat-card">
+                    <h4>Most Active Repositories</h4>
+                    <div class="repo-list">
+                        {{range .MostActiveRepos}}
+                            <div class="repo-item">
+                                <div class="repo-info">
+                                    <div class="repo-name">{{.Owner}}/{{.Name}}</div>
+                                    <div class="repo-activity">{{.CommitsThisWeek}} commits this week</div>
+                                </div>
+                                <div class="repo-actions">
+                                    <a href="/{{.Owner}}/{{.Name}}" class="btn btn-sm">View</a>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Badge Management -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>Badge System</h2>
+                <a href="/admin/badges" class="section-link">Manage badges</a>
+            </div>
+            
+            <div class="badge-overview">
+                <div class="badge-stats">
+                    <div class="badge-stat">
+                        <span class="badge-count">{{.BadgeStats.TotalBadges}}</span>
+                        <span class="badge-label">Total Badges</span>
+                    </div>
+                    <div class="badge-stat">
+                        <span class="badge-count">{{.BadgeStats.ActiveBadges}}</span>
+                        <span class="badge-label">Active Badges</span>
+                    </div>
+                    <div class="badge-stat">
+                        <span class="badge-count">{{.BadgeStats.BadgesAwarded}}</span>
+                        <span class="badge-label">Badges Awarded</span>
+                    </div>
+                </div>
+                
+                <div class="recent-badges">
+                    <h4>Recently Created Badges</h4>
+                    <div class="badge-list">
+                        {{range .RecentBadges}}
+                            <div class="badge-item">
+                                <div class="badge-preview">
+                                    <img src="{{.IconURL}}" alt="{{.Name}}" class="badge-icon">
+                                    <div class="badge-info">
+                                        <div class="badge-name">{{.Name}}</div>
+                                        <div class="badge-description">{{.Description}}</div>
+                                    </div>
+                                </div>
+                                <div class="badge-actions">
+                                    <button class="btn btn-sm" onclick="awardBadge('{{.ID}}')">Award</button>
+                                    <a href="/admin/badges/{{.ID}}/edit" class="btn btn-sm">Edit</a>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Alerts -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>System Alerts</h2>
+                <a href="/admin/system" class="section-link">View system status</a>
+            </div>
+            
+            <div class="alert-list">
+                {{range .SystemAlerts}}
+                    <div class="alert alert-{{.Type}}">
+                        <div class="alert-icon">
+                            <i data-feather="{{if eq .Type "error"}}alert-circle{{else if eq .Type "warning"}}alert-triangle{{else}}info{{end}}"></i>
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-title">{{.Title}}</div>
+                            <div class="alert-message">{{.Message}}</div>
+                            <div class="alert-time">{{.TimeAgo}}</div>
+                        </div>
+                        {{if .Action}}
+                            <div class="alert-action">
+                                <a href="{{.ActionURL}}" class="btn btn-sm">{{.Action}}</a>
+                            </div>
+                        {{end}}
+                    </div>
+                {{end}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.admin-title h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    color: var(--accent-danger);
+}
+
+.admin-title p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.admin-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.stat-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.stat-users { border-left: 4px solid #2f81f7; }
+.stat-repos { border-left: 4px solid #238636; }
+.stat-storage { border-left: 4px solid #d29922; }
+.stat-active { border-left: 4px solid #8250df; }
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-users .stat-icon { background-color: #2f81f7; }
+.stat-repos .stat-icon { background-color: #238636; }
+.stat-storage .stat-icon { background-color: #d29922; }
+.stat-active .stat-icon { background-color: #8250df; }
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-change {
+    font-size: 0.75rem;
+    color: var(--accent-primary);
+}
+
+.admin-nav {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+    border-bottom: 1px solid var(--border-primary);
+    overflow-x: auto;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.admin-nav-item:hover {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.admin-nav-item.active {
+    color: var(--accent-danger);
+    border-bottom-color: var(--accent-danger);
+}
+
+.admin-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xl);
+}
+
+.admin-section {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-primary);
+    background-color: var(--bg-tertiary);
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.user-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}
+
+.quick-action-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+}
+
+.quick-action-card h3 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.user-item, .admin-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.user-item:last-child, .admin-item:last-child {
+    border-bottom: none;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.admin-badge {
+    background-color: var(--accent-danger);
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.user-email {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.user-meta {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.user-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+@media (max-width: 768px) {
+    .admin-header {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+        align-items: stretch;
+    }
+    
+    .user-quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-nav {
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+// Admin Dashboard JavaScript
+function makeAdmin(userId) {
+    if (!confirm('Are you sure you want to make this user an admin?')) return;
+    
+    fetch(`/admin/users/${userId}/make-admin`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to make user admin: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function removeAdmin(userId) {
+    if (!confirm('Are you sure you want to remove admin privileges from this user?')) return;
+    
+    fetch(`/admin/users/${userId}/remove-admin`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to remove admin: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function deleteUser(userId) {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+    
+    const reason = prompt('Please provide a reason for deletion:');
+    if (!reason) return;
+    
+    fetch(`/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to delete user: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function deleteRepo(repoId) {
+    if (!confirm('Are you sure you want to delete this repository? This action cannot be undone.')) return;
+    
+    const reason = prompt('Please provide a reason for deletion:');
+    if (!reason) return;
+    
+    fetch(`/admin/repositories/${repoId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: reason })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to delete repository: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function awardBadge(badgeId) {
+    const username = prompt('Enter username to award badge to:');
+    if (!username) return;
+    
+    fetch(`/admin/badges/${badgeId}/award`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Badge awarded successfully!');
+        } else {
+            alert('Failed to award badge: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+</script>
+{{end}}

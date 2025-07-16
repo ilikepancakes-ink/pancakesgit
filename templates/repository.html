@@ -1,0 +1,568 @@
+{{define "content"}}
+<div class="repository">
+    <!-- Repository Header -->
+    <div class="repo-header">
+        <div class="repo-title">
+            <div class="repo-breadcrumb">
+                <a href="/{{.Owner.Username}}" class="breadcrumb-link">{{.Owner.Username}}</a>
+                <span class="breadcrumb-separator">/</span>
+                <h1 class="repo-name">{{.Repository.Name}}</h1>
+                <div class="repo-visibility">
+                    {{if .Repository.IsPrivate}}
+                        <span class="badge badge-private">
+                            <i data-feather="lock"></i>
+                            Private
+                        </span>
+                    {{else}}
+                        <span class="badge badge-public">
+                            <i data-feather="globe"></i>
+                            Public
+                        </span>
+                    {{end}}
+                </div>
+            </div>
+            
+            {{if .Repository.Description}}
+                <p class="repo-description">{{.Repository.Description}}</p>
+            {{end}}
+            
+            <div class="repo-meta">
+                {{if .Repository.Website}}
+                    <a href="{{.Repository.Website}}" class="repo-link" target="_blank" rel="noopener">
+                        <i data-feather="external-link"></i>
+                        {{.Repository.Website}}
+                    </a>
+                {{end}}
+                
+                <div class="repo-stats">
+                    <span class="repo-stat">
+                        <i data-feather="star"></i>
+                        {{.Repository.StarCount}} stars
+                    </span>
+                    <span class="repo-stat">
+                        <i data-feather="git-branch"></i>
+                        {{.Repository.ForkCount}} forks
+                    </span>
+                    <span class="repo-stat">
+                        <i data-feather="eye"></i>
+                        {{.Repository.WatchCount}} watching
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="repo-actions">
+            {{if .CanWrite}}
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" data-dropdown="repo-actions">
+                        <i data-feather="plus"></i>
+                        Add file
+                    </button>
+                    <div class="dropdown-menu" id="repo-actions">
+                        <a href="/{{.Owner.Username}}/{{.Repository.Name}}/upload" class="dropdown-item">
+                            <i data-feather="upload"></i>
+                            Upload files
+                        </a>
+                        <a href="/{{.Owner.Username}}/{{.Repository.Name}}/new" class="dropdown-item">
+                            <i data-feather="file-plus"></i>
+                            Create new file
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="/{{.Owner.Username}}/{{.Repository.Name}}/new/folder" class="dropdown-item">
+                            <i data-feather="folder-plus"></i>
+                            Create new folder
+                        </a>
+                    </div>
+                </div>
+            {{end}}
+            
+            <button class="btn btn-secondary" data-copy="{{.CloneURL}}">
+                <i data-feather="download"></i>
+                Clone
+            </button>
+            
+            {{if ne .User.ID .Owner.ID}}
+                <button class="btn btn-secondary star-btn" data-repo-id="{{.Repository.ID}}">
+                    <i data-feather="star"></i>
+                    {{if .IsStarred}}Unstar{{else}}Star{{end}}
+                </button>
+            {{end}}
+        </div>
+    </div>
+    
+    <!-- Repository Navigation -->
+    <div class="repo-nav">
+        <div class="repo-nav-tabs">
+            <a href="/{{.Owner.Username}}/{{.Repository.Name}}" class="nav-tab {{if eq .Tab "code"}}active{{end}}">
+                <i data-feather="code"></i>
+                Code
+            </a>
+            <a href="/{{.Owner.Username}}/{{.Repository.Name}}/issues" class="nav-tab {{if eq .Tab "issues"}}active{{end}}">
+                <i data-feather="alert-circle"></i>
+                Issues
+                {{if .Repository.OpenIssueCount}}
+                    <span class="nav-counter">{{.Repository.OpenIssueCount}}</span>
+                {{end}}
+            </a>
+            <a href="/{{.Owner.Username}}/{{.Repository.Name}}/pulls" class="nav-tab {{if eq .Tab "pulls"}}active{{end}}">
+                <i data-feather="git-pull-request"></i>
+                Pull requests
+                {{if .Repository.OpenPRCount}}
+                    <span class="nav-counter">{{.Repository.OpenPRCount}}</span>
+                {{end}}
+            </a>
+            <a href="/{{.Owner.Username}}/{{.Repository.Name}}/actions" class="nav-tab {{if eq .Tab "actions"}}active{{end}}">
+                <i data-feather="play-circle"></i>
+                Actions
+            </a>
+            <a href="/{{.Owner.Username}}/{{.Repository.Name}}/security" class="nav-tab {{if eq .Tab "security"}}active{{end}}">
+                <i data-feather="shield"></i>
+                Security
+            </a>
+            <a href="/{{.Owner.Username}}/{{.Repository.Name}}/settings" class="nav-tab {{if eq .Tab "settings"}}active{{end}}">
+                <i data-feather="settings"></i>
+                Settings
+            </a>
+        </div>
+        
+        <div class="repo-nav-info">
+            <div class="branch-selector">
+                <div class="dropdown">
+                    <button class="btn btn-sm dropdown-toggle" data-dropdown="branches">
+                        <i data-feather="git-branch"></i>
+                        {{.CurrentBranch}}
+                    </button>
+                    <div class="dropdown-menu" id="branches">
+                        <div class="dropdown-header">Switch branches/tags</div>
+                        {{range .Branches}}
+                            <a href="/{{$.Owner.Username}}/{{$.Repository.Name}}/tree/{{.Name}}" class="dropdown-item">
+                                <i data-feather="git-branch"></i>
+                                {{.Name}}
+                                {{if .IsDefault}}
+                                    <span class="badge badge-sm">default</span>
+                                {{end}}
+                            </a>
+                        {{end}}
+                        {{if .Tags}}
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-header">Tags</div>
+                            {{range .Tags}}
+                                <a href="/{{$.Owner.Username}}/{{$.Repository.Name}}/tree/{{.Name}}" class="dropdown-item">
+                                    <i data-feather="tag"></i>
+                                    {{.Name}}
+                                </a>
+                            {{end}}
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="commit-info">
+                <a href="/{{.Owner.Username}}/{{.Repository.Name}}/commits" class="commit-link">
+                    <i data-feather="git-commit"></i>
+                    {{.Repository.CommitCount}} commits
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Repository Content -->
+    <div class="repo-content">
+        {{if eq .Tab "code"}}
+            <!-- File Browser -->
+            <div class="file-browser">
+                {{if .Path}}
+                    <div class="file-path">
+                        <nav class="breadcrumb">
+                            <a href="/{{.Owner.Username}}/{{.Repository.Name}}" class="breadcrumb-item">{{.Repository.Name}}</a>
+                            {{range .PathSegments}}
+                                <span class="breadcrumb-separator">/</span>
+                                <a href="/{{$.Owner.Username}}/{{$.Repository.Name}}/tree/{{$.CurrentBranch}}/{{.Path}}" class="breadcrumb-item">{{.Name}}</a>
+                            {{end}}
+                        </nav>
+                    </div>
+                {{end}}
+                
+                <div class="file-list">
+                    <div class="file-list-header">
+                        <div class="latest-commit">
+                            {{if .LatestCommit}}
+                                <a href="/{{.Owner.Username}}/{{.Repository.Name}}/commit/{{.LatestCommit.SHA}}" class="commit-link">
+                                    <img src="{{.LatestCommit.Author.AvatarURL}}" alt="{{.LatestCommit.Author.Username}}" class="commit-avatar">
+                                    <span class="commit-message">{{.LatestCommit.Message}}</span>
+                                </a>
+                                <span class="commit-time">{{.LatestCommit.TimeAgo}}</span>
+                            {{end}}
+                        </div>
+                    </div>
+                    
+                    <div class="file-items">
+                        {{if .ParentPath}}
+                            <div class="file-item">
+                                <a href="/{{.Owner.Username}}/{{.Repository.Name}}/tree/{{.CurrentBranch}}/{{.ParentPath}}" class="file-link">
+                                    <i data-feather="corner-up-left"></i>
+                                    <span class="file-name">..</span>
+                                </a>
+                            </div>
+                        {{end}}
+                        
+                        {{range .Files}}
+                            <div class="file-item">
+                                <a href="/{{$.Owner.Username}}/{{$.Repository.Name}}/{{if .IsDir}}tree{{else}}blob{{end}}/{{$.CurrentBranch}}/{{.Path}}" class="file-link">
+                                    <i data-feather="{{if .IsDir}}folder{{else}}file{{end}}"></i>
+                                    <span class="file-name">{{.Name}}</span>
+                                </a>
+                                <span class="file-commit">
+                                    <a href="/{{$.Owner.Username}}/{{$.Repository.Name}}/commit/{{.LastCommit.SHA}}" class="commit-message">{{.LastCommit.Message}}</a>
+                                </span>
+                                <span class="file-time">{{.LastCommit.TimeAgo}}</span>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+                
+                {{if .README}}
+                    <div class="readme">
+                        <div class="readme-header">
+                            <h3>
+                                <i data-feather="book-open"></i>
+                                README.md
+                            </h3>
+                        </div>
+                        <div class="readme-content">
+                            {{.README}}
+                        </div>
+                    </div>
+                {{end}}
+            </div>
+        {{end}}
+    </div>
+</div>
+
+<style>
+.repository {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.repo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: var(--spacing-lg);
+}
+
+.repo-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.breadcrumb-link {
+    color: var(--accent-secondary);
+    font-size: 1.25rem;
+    text-decoration: none;
+}
+
+.breadcrumb-separator {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+}
+
+.repo-name {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.repo-visibility {
+    margin-left: var(--spacing-md);
+}
+
+.repo-description {
+    color: var(--text-secondary);
+    margin: var(--spacing-sm) 0;
+    font-size: 1rem;
+}
+
+.repo-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+.repo-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--accent-secondary);
+    text-decoration: none;
+}
+
+.repo-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.repo-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.repo-actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.repo-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.repo-nav-tabs {
+    display: flex;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: var(--transition);
+}
+
+.nav-tab:hover {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.nav-tab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-secondary);
+}
+
+.nav-counter {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+.repo-nav-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.file-browser {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.file-path {
+    padding: var(--spacing-md);
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.breadcrumb-item {
+    color: var(--accent-secondary);
+    text-decoration: none;
+}
+
+.file-list-header {
+    padding: var(--spacing-md);
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.latest-commit {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.commit-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.commit-message {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.commit-time {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-left: auto;
+}
+
+.file-items {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--border-primary);
+    transition: var(--transition);
+}
+
+.file-item:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.file-item:last-child {
+    border-bottom: none;
+}
+
+.file-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-primary);
+    text-decoration: none;
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 500;
+}
+
+.file-commit {
+    flex: 2;
+    margin-left: var(--spacing-lg);
+}
+
+.file-commit .commit-message {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.file-time {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    min-width: 100px;
+    text-align: right;
+}
+
+.readme {
+    margin-top: var(--spacing-xl);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.readme-header {
+    padding: var(--spacing-md);
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.readme-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1rem;
+}
+
+.readme-content {
+    padding: var(--spacing-lg);
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .repo-header {
+        flex-direction: column;
+        gap: var(--spacing-lg);
+        align-items: stretch;
+    }
+    
+    .repo-nav {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+    }
+    
+    .repo-nav-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .file-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-xs);
+    }
+    
+    .file-commit,
+    .file-time {
+        margin-left: 0;
+        text-align: left;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Star/unstar functionality
+    const starBtn = document.querySelector('.star-btn');
+    if (starBtn) {
+        starBtn.addEventListener('click', function() {
+            const repoId = this.getAttribute('data-repo-id');
+            const isStarred = this.textContent.trim() === 'Unstar';
+            
+            fetch(`/api/v1/repos/${repoId}/star`, {
+                method: isStarred ? 'DELETE' : 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    this.innerHTML = isStarred ? 
+                        '<i data-feather="star"></i>Star' : 
+                        '<i data-feather="star"></i>Unstar';
+                    feather.replace();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    }
+});
+</script>
+{{end}}

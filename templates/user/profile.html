@@ -1,0 +1,742 @@
+{{define "content"}}
+<div class="user-profile">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <img src="{{.ProfileUser.AvatarURL}}" alt="{{.ProfileUser.Username}}" class="avatar-large">
+            {{if .ProfileUser.IsOnline}}
+                <div class="online-indicator" title="Online"></div>
+            {{end}}
+        </div>
+        
+        <div class="profile-info">
+            <div class="profile-name">
+                <h1>{{.ProfileUser.DisplayName}}</h1>
+                <div class="profile-username">@{{.ProfileUser.Username}}</div>
+                
+                <!-- User Badges -->
+                {{if .ProfileUser.Badges}}
+                    <div class="user-badges">
+                        {{range .ProfileUser.Badges}}
+                            <div class="user-badge" style="background-color: {{.Color}};" title="{{.Description}}">
+                                {{if .IconURL}}
+                                    <img src="{{.IconURL}}" alt="{{.Name}}" class="badge-icon">
+                                {{end}}
+                                <span class="badge-name">{{.Name}}</span>
+                            </div>
+                        {{end}}
+                    </div>
+                {{end}}
+            </div>
+            
+            {{if .ProfileUser.Bio}}
+                <div class="profile-bio">{{.ProfileUser.Bio}}</div>
+            {{end}}
+            
+            <div class="profile-meta">
+                {{if .ProfileUser.Location}}
+                    <div class="meta-item">
+                        <i data-feather="map-pin"></i>
+                        <span>{{.ProfileUser.Location}}</span>
+                    </div>
+                {{end}}
+                
+                {{if .ProfileUser.Website}}
+                    <div class="meta-item">
+                        <i data-feather="link"></i>
+                        <a href="{{.ProfileUser.Website}}" target="_blank" rel="noopener">{{.ProfileUser.Website}}</a>
+                    </div>
+                {{end}}
+                
+                {{if .ProfileUser.Company}}
+                    <div class="meta-item">
+                        <i data-feather="briefcase"></i>
+                        <span>{{.ProfileUser.Company}}</span>
+                    </div>
+                {{end}}
+                
+                <div class="meta-item">
+                    <i data-feather="calendar"></i>
+                    <span>Joined {{.ProfileUser.JoinedDate}}</span>
+                </div>
+                
+                {{if not .Config.Privacy.HideUserEmails}}
+                    <div class="meta-item">
+                        <i data-feather="mail"></i>
+                        <span>{{.ProfileUser.Email}}</span>
+                    </div>
+                {{end}}
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{.ProfileUser.FollowerCount}}</span>
+                    <span class="stat-label">followers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{.ProfileUser.FollowingCount}}</span>
+                    <span class="stat-label">following</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{.ProfileUser.StarCount}}</span>
+                    <span class="stat-label">stars</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            {{if eq .User.ID .ProfileUser.ID}}
+                <!-- Own profile -->
+                <a href="/settings" class="btn btn-secondary">
+                    <i data-feather="settings"></i>
+                    Edit profile
+                </a>
+            {{else}}
+                <!-- Other user's profile -->
+                {{if .IsFollowing}}
+                    <button class="btn btn-secondary" onclick="unfollowUser('{{.ProfileUser.ID}}')">
+                        <i data-feather="user-minus"></i>
+                        Unfollow
+                    </button>
+                {{else}}
+                    <button class="btn btn-primary" onclick="followUser('{{.ProfileUser.ID}}')">
+                        <i data-feather="user-plus"></i>
+                        Follow
+                    </button>
+                {{end}}
+                
+                {{if .User.IsAdmin}}
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" data-dropdown="admin-actions">
+                            <i data-feather="shield"></i>
+                            Admin
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" id="admin-actions">
+                            <a href="/admin/users/{{.ProfileUser.ID}}" class="dropdown-item">
+                                <i data-feather="eye"></i>
+                                View in Admin
+                            </a>
+                            <button class="dropdown-item" onclick="awardBadgeModal('{{.ProfileUser.ID}}')">
+                                <i data-feather="award"></i>
+                                Award Badge
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            {{if ne .ProfileUser.Role "admin"}}
+                                <button class="dropdown-item" onclick="makeAdmin('{{.ProfileUser.ID}}')">
+                                    <i data-feather="shield"></i>
+                                    Make Admin
+                                </button>
+                            {{end}}
+                            <button class="dropdown-item dropdown-item-warning" onclick="suspendUser('{{.ProfileUser.ID}}')">
+                                <i data-feather="pause-circle"></i>
+                                Suspend User
+                            </button>
+                        </div>
+                    </div>
+                {{end}}
+            {{end}}
+        </div>
+    </div>
+    
+    <!-- Profile Navigation -->
+    <div class="profile-nav">
+        <a href="/{{.ProfileUser.Username}}" class="nav-tab {{if eq .Tab "overview"}}active{{end}}">
+            <i data-feather="home"></i>
+            Overview
+        </a>
+        <a href="/{{.ProfileUser.Username}}?tab=repositories" class="nav-tab {{if eq .Tab "repositories"}}active{{end}}">
+            <i data-feather="git-branch"></i>
+            Repositories
+            <span class="nav-counter">{{.ProfileUser.RepositoryCount}}</span>
+        </a>
+        <a href="/{{.ProfileUser.Username}}?tab=stars" class="nav-tab {{if eq .Tab "stars"}}active{{end}}">
+            <i data-feather="star"></i>
+            Stars
+            <span class="nav-counter">{{.ProfileUser.StarredCount}}</span>
+        </a>
+        <a href="/{{.ProfileUser.Username}}?tab=badges" class="nav-tab {{if eq .Tab "badges"}}active{{end}}">
+            <i data-feather="award"></i>
+            Badges
+            <span class="nav-counter">{{len .ProfileUser.Badges}}</span>
+        </a>
+        <a href="/{{.ProfileUser.Username}}?tab=activity" class="nav-tab {{if eq .Tab "activity"}}active{{end}}">
+            <i data-feather="activity"></i>
+            Activity
+        </a>
+    </div>
+    
+    <!-- Profile Content -->
+    <div class="profile-content">
+        {{if eq .Tab "overview"}}
+            <!-- Overview Tab -->
+            <div class="overview-grid">
+                <!-- Contribution Graph -->
+                <div class="contribution-section">
+                    <h3>Contribution activity</h3>
+                    <div class="contribution-graph">
+                        <!-- This would be generated by JavaScript -->
+                        <div class="contribution-placeholder">
+                            <p>Contribution graph would be displayed here</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="activity-section">
+                    <h3>Recent activity</h3>
+                    <div class="activity-feed">
+                        {{range .RecentActivity}}
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i data-feather="{{.Icon}}"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">{{.Description}}</div>
+                                    <div class="activity-time">{{.TimeAgo}}</div>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+                
+                <!-- Popular Repositories -->
+                <div class="repos-section">
+                    <h3>Popular repositories</h3>
+                    <div class="repo-grid">
+                        {{range .PopularRepositories}}
+                            <div class="repo-card">
+                                <div class="repo-header">
+                                    <a href="/{{$.ProfileUser.Username}}/{{.Name}}" class="repo-name">
+                                        <i data-feather="{{if .IsPrivate}}lock{{else}}git-branch{{end}}"></i>
+                                        {{.Name}}
+                                    </a>
+                                    {{if .IsPrivate}}
+                                        <span class="badge badge-private">Private</span>
+                                    {{end}}
+                                </div>
+                                
+                                {{if .Description}}
+                                    <p class="repo-description">{{.Description}}</p>
+                                {{end}}
+                                
+                                <div class="repo-meta">
+                                    {{if .Language}}
+                                        <span class="repo-language">
+                                            <span class="language-color" style="background-color: {{.LanguageColor}}"></span>
+                                            {{.Language}}
+                                        </span>
+                                    {{end}}
+                                    
+                                    {{if .StarCount}}
+                                        <span class="repo-stars">
+                                            <i data-feather="star"></i>
+                                            {{.StarCount}}
+                                        </span>
+                                    {{end}}
+                                    
+                                    {{if .ForkCount}}
+                                        <span class="repo-forks">
+                                            <i data-feather="git-branch"></i>
+                                            {{.ForkCount}}
+                                        </span>
+                                    {{end}}
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            
+        {{else if eq .Tab "badges"}}
+            <!-- Badges Tab -->
+            <div class="badges-section">
+                <div class="badges-header">
+                    <h3>Badges & Achievements</h3>
+                    <p>Recognition for contributions and milestones</p>
+                </div>
+                
+                {{if .ProfileUser.Badges}}
+                    <div class="badges-grid">
+                        {{range .ProfileUser.Badges}}
+                            <div class="badge-card">
+                                <div class="badge-icon-large">
+                                    {{if .IconURL}}
+                                        <img src="{{.IconURL}}" alt="{{.Name}}" class="badge-image">
+                                    {{else}}
+                                        <div class="badge-placeholder" style="background-color: {{.Color}};">
+                                            <i data-feather="award"></i>
+                                        </div>
+                                    {{end}}
+                                </div>
+                                
+                                <div class="badge-info">
+                                    <h4 class="badge-title">{{.Name}}</h4>
+                                    <p class="badge-description">{{.Description}}</p>
+                                    
+                                    <div class="badge-meta">
+                                        <span class="badge-category">{{.Category}}</span>
+                                        <span class="badge-rarity badge-rarity-{{.Rarity}}">{{.Rarity}}</span>
+                                    </div>
+                                    
+                                    <div class="badge-awarded">
+                                        <i data-feather="calendar"></i>
+                                        Earned {{.AwardedAt}}
+                                        {{if .Reason}}
+                                            <span class="badge-reason">• {{.Reason}}</span>
+                                        {{end}}
+                                    </div>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                {{else}}
+                    <div class="empty-state">
+                        <i data-feather="award"></i>
+                        <h3>No badges yet</h3>
+                        <p>{{.ProfileUser.Username}} hasn't earned any badges yet.</p>
+                    </div>
+                {{end}}
+            </div>
+            
+        {{else if eq .Tab "repositories"}}
+            <!-- Repositories Tab -->
+            <div class="repositories-section">
+                <!-- Repository filters and search would go here -->
+                <div class="repo-list">
+                    {{range .Repositories}}
+                        <!-- Repository items -->
+                    {{end}}
+                </div>
+            </div>
+            
+        {{else if eq .Tab "stars"}}
+            <!-- Stars Tab -->
+            <div class="stars-section">
+                <!-- Starred repositories would go here -->
+            </div>
+            
+        {{else if eq .Tab "activity"}}
+            <!-- Activity Tab -->
+            <div class="activity-section">
+                <!-- Detailed activity feed would go here -->
+            </div>
+        {{end}}
+    </div>
+</div>
+
+<style>
+.user-profile {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.profile-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid var(--border-primary);
+}
+
+.online-indicator {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--accent-primary);
+    border: 3px solid var(--bg-primary);
+    border-radius: 50%;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name h1 {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 2rem;
+}
+
+.profile-username {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.user-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badge-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.profile-bio {
+    margin-bottom: var(--spacing-md);
+    font-size: 1.125rem;
+    line-height: 1.5;
+}
+
+.profile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.meta-item a {
+    color: var(--accent-secondary);
+}
+
+.profile-stats {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    align-items: flex-end;
+}
+
+.profile-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: var(--spacing-xl);
+    overflow-x: auto;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) var(--spacing-lg);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.nav-tab:hover {
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+.nav-tab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-secondary);
+}
+
+.nav-counter {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-xl);
+}
+
+.contribution-section,
+.activity-section,
+.repos-section {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+}
+
+.contribution-section {
+    grid-column: 1 / -1;
+}
+
+.contribution-section h3,
+.activity-section h3,
+.repos-section h3 {
+    margin: 0 0 var(--spacing-lg) 0;
+    font-size: 1.125rem;
+}
+
+.contribution-placeholder {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    color: var(--text-secondary);
+}
+
+.repo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.repo-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+}
+
+.repo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.repo-name {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--accent-secondary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.badges-section {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+}
+
+.badges-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.badges-header h3 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1.5rem;
+}
+
+.badges-header p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.badge-card {
+    display: flex;
+    gap: var(--spacing-lg);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    transition: var(--transition);
+}
+
+.badge-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.badge-icon-large {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.badge-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+}
+
+.badge-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    color: white;
+    font-size: 2rem;
+}
+
+.badge-info {
+    flex: 1;
+}
+
+.badge-title {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.badge-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.4;
+}
+
+.badge-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.badge-category {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.badge-rarity {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.badge-rarity-common { background-color: rgba(139, 148, 158, 0.2); color: var(--text-secondary); }
+.badge-rarity-rare { background-color: rgba(47, 129, 247, 0.1); color: var(--accent-secondary); }
+.badge-rarity-epic { background-color: rgba(130, 80, 223, 0.1); color: #8250df; }
+.badge-rarity-legendary { background-color: rgba(255, 215, 0, 0.2); color: #ffd700; }
+
+.badge-awarded {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.badge-reason {
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .overview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .badges-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .badge-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+function followUser(userId) {
+    fetch(`/api/v1/users/${userId}/follow`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function unfollowUser(userId) {
+    fetch(`/api/v1/users/${userId}/follow`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+{{end}}

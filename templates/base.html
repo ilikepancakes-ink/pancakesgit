@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - PancakesGit</title>
+    <meta name="description" content="Privacy-focused Git service">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/themes.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css">
+    
+    {{block "head" .}}{{end}}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/" class="brand-link">
+                    <span class="brand-icon">🥞</span>
+                    <span class="brand-text">PancakesGit</span>
+                </a>
+            </div>
+            
+            <div class="nav-search">
+                <form class="search-form" action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search repositories..." class="search-input">
+                    <button type="submit" class="search-btn">
+                        <i data-feather="search"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="nav-menu">
+                {{if .User}}
+                    <div class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle" data-dropdown="create">
+                            <i data-feather="plus"></i>
+                            <span>Create</span>
+                        </button>
+                        <div class="dropdown-menu" id="create">
+                            <a href="/new" class="dropdown-item">
+                                <i data-feather="git-branch"></i>
+                                New repository
+                            </a>
+                            <a href="/new/org" class="dropdown-item">
+                                <i data-feather="users"></i>
+                                New organization
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="/notifications" class="nav-link">
+                            <i data-feather="bell"></i>
+                            <span class="notification-badge">{{.NotificationCount}}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item dropdown">
+                        <button class="nav-link dropdown-toggle user-menu" data-dropdown="user">
+                            <img src="{{.User.AvatarURL}}" alt="{{.User.Username}}" class="user-avatar">
+                            <span>{{.User.Username}}</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" id="user">
+                            <div class="dropdown-header">
+                                <strong>{{.User.Username}}</strong>
+                                <small>{{.User.Email}}</small>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="/{{.User.Username}}" class="dropdown-item">
+                                <i data-feather="user"></i>
+                                Your profile
+                            </a>
+                            <a href="/{{.User.Username}}?tab=repositories" class="dropdown-item">
+                                <i data-feather="git-branch"></i>
+                                Your repositories
+                            </a>
+                            <a href="/{{.User.Username}}?tab=stars" class="dropdown-item">
+                                <i data-feather="star"></i>
+                                Your stars
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="/settings" class="dropdown-item">
+                                <i data-feather="settings"></i>
+                                Settings
+                            </a>
+                            {{if .User.IsAdmin}}
+                            <a href="/admin" class="dropdown-item">
+                                <i data-feather="shield"></i>
+                                Admin panel
+                            </a>
+                            {{end}}
+                            <div class="dropdown-divider"></div>
+                            <form action="/logout" method="POST" class="dropdown-form">
+                                <button type="submit" class="dropdown-item dropdown-item-danger">
+                                    <i data-feather="log-out"></i>
+                                    Sign out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {{else}}
+                    <div class="nav-item">
+                        <a href="/login" class="nav-link">Sign in</a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/register" class="btn btn-primary">Sign up</a>
+                    </div>
+                {{end}}
+                
+                <div class="nav-item">
+                    <button class="theme-toggle" data-theme-toggle>
+                        <i data-feather="sun" class="theme-icon theme-icon-light"></i>
+                        <i data-feather="moon" class="theme-icon theme-icon-dark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        {{if .Flash}}
+            <div class="flash-messages">
+                {{range .Flash}}
+                    <div class="flash flash-{{.Type}}">
+                        <i data-feather="{{if eq .Type "error"}}alert-circle{{else if eq .Type "warning"}}alert-triangle{{else if eq .Type "success"}}check-circle{{else}}info{{end}}"></i>
+                        <span>{{.Message}}</span>
+                        <button class="flash-close" onclick="this.parentElement.remove()">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                {{end}}
+            </div>
+        {{end}}
+        
+        {{block "content" .}}{{end}}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>PancakesGit</h4>
+                <p>Privacy-focused Git hosting</p>
+                <div class="footer-links">
+                    <a href="/about">About</a>
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/terms">Terms of Service</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Features</h4>
+                <div class="footer-links">
+                    <a href="/features">All Features</a>
+                    <a href="/security">Security</a>
+                    <a href="/encryption">Encryption</a>
+                    <a href="/api">API Documentation</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Support</h4>
+                <div class="footer-links">
+                    <a href="/docs">Documentation</a>
+                    <a href="/help">Help Center</a>
+                    <a href="/contact">Contact</a>
+                    <a href="/status">System Status</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <div class="footer-privacy">
+                    <i data-feather="shield"></i>
+                    <span>Your privacy is protected</span>
+                </div>
+                <div class="footer-encryption">
+                    <i data-feather="lock"></i>
+                    <span>End-to-end encrypted</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <p>&copy; {{.Year}} PancakesGit. Built with privacy in mind.</p>
+                <div class="footer-version">
+                    <span>Version {{.Version}}</span>
+                    {{if .User.IsAdmin}}
+                        <span>•</span>
+                        <a href="/admin/system">System Info</a>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/components.js"></script>
+    {{block "scripts" .}}{{end}}
+    
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+        
+        // Initialize components
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDropdowns();
+            initializeThemeToggle();
+            initializeFlashMessages();
+        });
+    </script>
+</body>
+</html>
